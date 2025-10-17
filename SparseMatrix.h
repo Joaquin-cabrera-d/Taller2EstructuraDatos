@@ -1,15 +1,16 @@
 #pragma once
-#include "Node.h"
+#include "Nodo.h"
 class SparseMatrix {
-  private:
-    Node* start;
-  public:
+private:
+    Nodo* start;
+public:
     SparseMatrix();
-    void add(int value, int xPos, int yPos);
-    int get(int xPos, int yPos);
-    void remove(int xPos, int yPos);
+    void add(int X, int Y, int valor);
+    int get(int X, int Y);
+    int remover(int X, int Y);
     void printStoredValues();
     int density();
-    SparseMatrix* multiply(SparseMatrix* second);
+    SparseMatrix* multiply(SparseMatrix* otraMatriz);
+    Nodo* getStart() const;
     ~SparseMatrix();
 };
