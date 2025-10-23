@@ -11,6 +11,5 @@ public:
     void printStoredValues();
     int density();
     SparseMatrix* multiply(SparseMatrix* otraMatriz);
-    Nodo* getStart() const;
     ~SparseMatrix();
 };
