@@ -1,9 +1,9 @@
 #include <iostream>
 #include "SparseMatrix.h"
+#include <string>
 using namespace std;
 SparseMatrix Matriz;
 
-void menuPrincipal();
 void agregarDato();
 void obtenerDato();
 void removerDato();
@@ -15,7 +15,16 @@ int main() {
     int opcion;
     string input;
     do{
-        menuPrincipal();
+        cout << "                      " << endl;
+        cout << "Menu de Opciones:" << endl;
+        cout << "1. Agregar un dato en una coordenada" << endl;
+        cout << "2. Obtener dato de una coordenada" << endl;
+        cout << "3. Remover dato de una cordenada" << endl;
+        cout << "4. Mostrar los datos tabularmente" << endl;
+        cout << "5. Calcular la densidad de la matriz" << endl;
+        cout << "6. Multiplicar matriz" << endl;
+        cout << "7. Salir" << endl;
+        cout << "Ingrese una opcion: ";
         getline(cin, input);
         try {
             opcion = stoi(input);
@@ -45,29 +54,17 @@ int main() {
                 cout<<"Saliendo del programa"<<endl;
                 break;
             default:
-                cout << "Opción no válida, intente de nuevo"<< endl;
+                cout << "Opcion no valida, intente de nuevo"<< endl;
         }
     } while(opcion !=7);
     return 0;
 }
-
-void menuPrincipal() {
-    cout << "Menu de Opciones:" << endl;
-    cout << "1. Agregar un dato en una coordenada" << endl;
-    cout << "2. Obtener dato de una coordenada" << endl;
-    cout << "3. Remover dato de una cordenada" << endl;
-    cout << "4. Mostrar los datos de una coordenada" << endl;
-    cout << "5. Calcular la densidad de la matriz" << endl;
-    cout << "6. Multiplicar matriz"<< endl;
-    cout << "7. Salir"<< endl;
-    cout << "Ingrese una opcion: ";
-}
 void agregarDato(){
     int X;
     int Y;
-    int value;
+    int valor;
     string input;
-    cout << "----------------------" << endl;
+    cout << "                      " << endl;
     cout << "Ingrese Coordenada en X: " << endl;
     getline(cin, input);
     try {
@@ -98,7 +95,7 @@ void agregarDato(){
         valor = 0;
     }
     if(valor == 0){
-        cout<<"Opcion no valida"<<endl;
+        cout<<"Valor asignado a 0 automaticamente"<<endl;
         return;
     }
     Matriz.add(X,Y,valor);
@@ -107,7 +104,7 @@ void obtenerDato(){
     int X;
     int Y;
     string input;
-    cout << "----------------------" << endl;
+    cout << "                      " << endl;
     cout << "Ingrese Coordenada en X: " << endl;
     getline(cin, input);
     try {
@@ -130,13 +127,13 @@ void obtenerDato(){
         cout<<"Opcion no valida"<<endl;
         return;
     }
-    cout<< "Valor en la coordenada "<< X << Y << " es: " << Matrix.get(X,Y) << endl;
+    cout<< "Valor en la coordenada "<< X << "," <<Y << " es: " << Matriz.get(X,Y) << endl;
 }
 void removerDato(){
     int X;
     int Y;
     string input;
-    cout << "----------------------" << endl;
+    cout << "                      " << endl;
     cout << "Ingrese Coordenada X: " << endl;
     getline(cin, input);
     try {
@@ -159,13 +156,23 @@ void removerDato(){
         cout<<"Opcion no valida"<<endl;
         return;
     }
-    int a = Matrix.remover(X,Y);
+    int a = Matriz.remover(X,Y);
     if (a == 1){
         cout << "Dato eliminado en la coordenada"<<endl;
     } else {
         cout << "Coordenada vacia"<<endl;
     }
 }
-void MostrarDatos(){}
-void DensidadMatriz(){}
-void MultiplicarMatriz(){}
+void mostrarDatos(){
+    cout << "                      " << endl;
+	cout << "Mostrando datos de la Matriz..." << endl;
+	Matriz.printStoredValues();
+}
+void calcularDensidad(){
+    cout << "                      " << endl;
+    cout << "Calculando densidad de la matriz..." << endl;
+	cout << "El " << Matriz.density() << "% de la matriz esta poblada" << endl;
+}
+void multiplicarMatriz() {
+
+}
