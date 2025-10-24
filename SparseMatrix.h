@@ -8,6 +8,8 @@ private:
     std::unordered_map<int, Nodo*> colHeads;
 public:
     SparseMatrix();
+    SparseMatrix(const SparseMatrix& other); // generar copia
+    SparseMatrix& operator=(const SparseMatrix& other);
     void add(int X, int Y, int valor);
     int get(int X, int Y);
     int remover(int X, int Y);
