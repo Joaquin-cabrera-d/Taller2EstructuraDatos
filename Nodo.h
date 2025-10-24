@@ -3,11 +3,10 @@
 struct Nodo {
     int x;
     int y;
-    int value;
+    int valor;
     Nodo* right;
     Nodo* down;
 
-    Nodo() : x(0), y(0), value(0), right(nullptr), down(nullptr) {} //sin parametro
-
-    Nodo(int v, int xPos, int yPos) : x(xPos), y(yPos), value(v), right(nullptr), down(nullptr) {} //con parametro
+    Nodo() : x(0), y(0), valor(0), right(nullptr), down(nullptr) {}
+    Nodo(int v, int xPos, int yPos) : x(xPos), y(yPos), valor(v), right(nullptr), down(nullptr) {}
 };
