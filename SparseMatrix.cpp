@@ -232,7 +232,7 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
         int i = p.first;
         Nodo* cursor = p.second;
         while (cursor) {
-            if (cursor->valor != 0) filasA[i].push_back({ cursor->y, cursor->valor }); // (k, aval)
+            if (cursor->valor != 0) filasA[i].push_back({ cursor->y, cursor->valor });
             cursor = cursor->right;
         }
     }
@@ -241,7 +241,7 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
         int i = p.first;
         Nodo* cursor = p.second;
         while (cursor) {
-            if (cursor->valor != 0) filasB[i].push_back({ cursor->y, cursor->valor }); // (j, bval) stored under Fila k
+            if (cursor->valor != 0) filasB[i].push_back({ cursor->y, cursor->valor });
             cursor = cursor->right;
         }
     }
