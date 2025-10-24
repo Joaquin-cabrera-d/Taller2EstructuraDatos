@@ -1,6 +1,9 @@
 #include <iostream>
 #include "SparseMatrix.h"
 #include <string>
+#include <random>
+#include <set>
+
 using namespace std;
 SparseMatrix Matriz;
 
@@ -99,6 +102,7 @@ void agregarDato(){
         return;
     }
     Matriz.add(X,Y,valor);
+	cout << "Dato agregado en la coordenada " << X << "," << Y << endl;
 }
 void obtenerDato(){
     int X;
@@ -171,8 +175,81 @@ void mostrarDatos(){
 void calcularDensidad(){
     cout << "                      " << endl;
     cout << "Calculando densidad de la matriz..." << endl;
-	cout << "El " << Matriz.density() << "% de la matriz esta poblada" << endl;
+	cout << "La densidad de la matriz es: " << Matriz.density() << "%" << endl;
+    if(Matriz.density() == 0){
+        cout << "(La matriz tiene 0 elementos o es un porcentaje menor a 1)";
+    }
 }
 void multiplicarMatriz() {
+    auto dimensA = Matriz.getDimensions();
+    int filaMaxA = dimensA.first;
+    int colMaxA = dimensA.second;
 
+    if (filaMaxA == 0 && colMaxA == 0) {
+        cout << "                      " << endl;
+        cout << "Matriz A vacia. No hay dimensiones para generar B." << endl;
+        return;
+    }
+    if (colMaxA == 0) {
+        cout << "                      " << endl;
+        cout << "Matriz A no tiene columnas validas. No se puede generar B compatible." << endl;
+        return;
+    }
+    cout << "                      " << endl;
+    cout << "Dimensiones de A usadas: Filas = " << filaMaxA << ", Columnas = " << colMaxA << endl;
+    string input;
+    int colsB = 0;
+    cout << "Ingrese numero de columnas deseadas para B: ";
+    getline(cin, input);
+    try { colsB = stoi(input); }
+    catch (...) { colsB = 0; }
+    if (colsB <= 0) {
+        cout << "Número de columnas invalido." << endl;
+        return;
+    }
+    int cantValores = 0;
+    cout << "                      " << endl;
+    cout << "Ingrese numero de elementos no nulos deseados en B (max " << (long long)colMaxA * colsB << "): ";
+    getline(cin, input);
+    try { cantValores = stoi(input); }
+    catch (...) { cantValores = 0; }
+    if (cantValores <= 0) {
+        cout << "Numero de no nulos invalido." << endl;
+        return;
+    }
+    long long maxPossible = (long long)colMaxA * colsB;
+    if (cantValores > maxPossible) cantValores = static_cast<int>(maxPossible);
+    cout << "                      " << endl;
+    SparseMatrix B;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distRow(1, colMaxA);
+    std::uniform_int_distribution<> distCol(1, colsB);
+    std::uniform_int_distribution<> distVal(1, 9);
+
+    std::set<std::pair<int, int>> used_coords;
+
+    for (int i = 0; i < cantValores;) {
+        int r = distRow(gen);
+        int c = distCol(gen);
+        std::pair<int, int> coord = { r, c };
+        if (used_coords.insert(coord).second) {
+            int v = distVal(gen);
+            B.add(r, c, v);
+            i++;
+        }
+    }
+
+    cout << "Matriz B generada aleatoriamente con " << cantValores << " valores (rango de valores entre 1 a 9)." << endl;
+    cout << "                      " << endl;
+    cout << "Multiplicando A * B..." << endl;
+    SparseMatrix* R = Matriz.multiply(&B);
+    if (R == nullptr) {
+        cout << "Resultado vacio (posible incompatibilidad o matrices vacías)." << endl;
+        return;
+    }
+    cout << "                      " << endl;
+    cout << "Resultado (valores almacenados):" << endl;
+    R->printStoredValues();
+    delete R;
 }
