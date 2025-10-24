@@ -3,6 +3,7 @@
 #include <string>
 #include <random>
 #include <set>
+#include <chrono>
 
 using namespace std;
 SparseMatrix Matriz;
@@ -226,6 +227,7 @@ void generarAleatoria(){
     long long maxPossible = (long long)X * Y;
     if (cantValores > maxPossible) cantValores = static_cast<int>(maxPossible);
     cout << "                      " << endl;
+    auto t0 = std::chrono::high_resolution_clock::now();
     SparseMatrix NuevaMatriz;
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -239,11 +241,14 @@ void generarAleatoria(){
         std::pair<int, int> coord = { r, c };
         if (used_coords.insert(coord).second) {
             int v = distVal(gen);
-            NuevaMatriz.add(r, c, v);
+            NuevaMatriz.addRandom(r, c, v);
             i++;
         }
     }
     Matriz = NuevaMatriz;
+    auto t1 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = t1 - t0;
+    std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
 	cout << "Matriz generada aleatoriamente con " << cantValores << " valores (rango de valores entre 1 a 9)." << endl;
 }
 void multiplicarMatriz() {
