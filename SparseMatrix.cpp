@@ -1,69 +1,154 @@
 #include "SparseMatrix.h"
 #include <iostream>
 #include <chrono>
+#include <vector>
+#include <algorithm>
+#include <unordered_map>
+#include <cmath>
 
-SparseMatrix::SparseMatrix() : start(nullptr) {}
+SparseMatrix::SparseMatrix() : filaHeads(), colHeads() {}
 
-void SparseMatrix::add(int X, int Y, int value) {
+void SparseMatrix::add(int X, int Y, int valor) {
+    if (valor == 0) return;
+    auto iterarFila = filaHeads.find(X);
+    if (iterarFila != filaHeads.end() && iterarFila->second != nullptr) {
+        Nodo* prev = nullptr;
+        Nodo* cursor = iterarFila->second;
+        while (cursor && cursor->y < Y) {
+            prev = cursor;
+            cursor = cursor->right;
+        }
+        if (cursor && cursor->y == Y) {
+            cursor->valor = valor;
+            return;
+        }
+    }
 
-    Nodo* nodo = new Nodo();        // nodo sin argumentos
-    nodo->x = X;
-    nodo->y = Y;
-    nodo->value = value;
+    Nodo* nodo = new Nodo(valor, X, Y);
     nodo->right = nullptr;
     nodo->down = nullptr;
 
-    if (!start) {
-        start = nodo;
-        return;
+    if (iterarFila == filaHeads.end() || iterarFila->second == nullptr) {
+        filaHeads[X] = nodo;
     }
-    Nodo* cursor = start;
-    while (cursor->right) cursor = cursor->right;
-    cursor->right = nodo;
+    else {
+        Nodo* prev = nullptr;
+        Nodo* cursor = filaHeads[X];
+        if (cursor->y > Y) {
+            nodo->right = cursor;
+            filaHeads[X] = nodo;
+        }
+        else {
+            while (cursor && cursor->y < Y) {
+                prev = cursor;
+                cursor = cursor->right;
+            }
+            prev->right = nodo;
+            nodo->right = cursor;
+        }
+    }
+    auto iterarCol = colHeads.find(Y);
+    if (iterarCol == colHeads.end() || iterarCol->second == nullptr) {
+        colHeads[Y] = nodo;
+    }
+    else {
+        Nodo* prev = nullptr;
+        Nodo* cursor = colHeads[Y];
+        if (cursor->x > X) {
+            nodo->down = cursor;
+            colHeads[Y] = nodo;
+        }
+        else {
+            while (cursor && cursor->x < X) {
+                prev = cursor;
+                cursor = cursor->down;
+            }
+            prev->down = nodo;
+            nodo->down = cursor;
+        }
+    }
 }
 
 int SparseMatrix::get(int X, int Y) {
     auto t0 = std::chrono::high_resolution_clock::now();
 
-    Nodo* cursor = start;
-    while (cursor) {
-        if (cursor->x == X && cursor->y == Y) return cursor->value;
+    auto iterarFila = filaHeads.find(X);
+    if (iterarFila == filaHeads.end() || iterarFila->second == nullptr) {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsed = t1 - t0;
+        std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
+        return 0;
+    }
+    Nodo* cursor = iterarFila->second;
+    while (cursor && cursor->y <= Y) {
+        if (cursor->y == Y) {
+            auto t1 = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> elapsed = t1 - t0;
+            std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
+            return cursor->valor;
+        }
         cursor = cursor->right;
     }
+
     auto t1 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = t1 - t0;
     std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
-
     return 0;
 }
 
 int SparseMatrix::remover(int X, int Y) {
     auto t0 = std::chrono::high_resolution_clock::now();
-    Nodo* cursor = start;
-    Nodo* prev = nullptr;
-    while (cursor != nullptr) {
-        if (cursor->x == X && cursor->y == Y) {
-            if (prev) prev->right = cursor->right;
-            else start = cursor->right;
-            delete cursor;
-            return 1;
-        }
-        prev = cursor;
-        cursor = cursor->right;
+
+    auto iterarFila = filaHeads.find(X);
+    if (iterarFila == filaHeads.end() || iterarFila->second == nullptr) {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsed = t1 - t0;
+        std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
+        return 0;
     }
+    Nodo* cursorFila = iterarFila->second;
+    while (cursorFila && cursorFila->y < Y) {
+        cursorFila = cursorFila->right;
+    }
+    if (!cursorFila || cursorFila->y != Y) {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsed = t1 - t0;
+        std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
+        return 0;
+    }
+    cursorFila->valor = 0;
+
     auto t1 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = t1 - t0;
     std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
-    return 0;
+    return 1;
 }
 
 void SparseMatrix::printStoredValues() {
     auto t0 = std::chrono::high_resolution_clock::now();
-    Nodo* cursor = start;
-    while (cursor!=nullptr) {
-        std::cout << "(" << cursor->x << "," << cursor->y << ") --> " << cursor->value << std::endl;
-        cursor = cursor->right;
+
+    if (filaHeads.empty()) {
+        std::cout << "La matriz esta vacia" << std::endl;
+        auto t1 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsed = t1 - t0;
+        std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
+        return;
     }
+
+    std::vector<int> filas;
+    filas.reserve(filaHeads.size());
+    for (const auto& p : filaHeads) filas.push_back(p.first);
+    std::sort(filas.begin(), filas.end());
+
+    for (int r : filas) {
+        Nodo* cursor = filaHeads[r];
+        while (cursor) {
+            if (cursor->valor != 0)
+                std::cout << "(" << cursor->x << "," << cursor->y << ") --> " << cursor->valor << std::endl;
+            cursor = cursor->right;
+        }
+    }
+
     auto t1 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = t1 - t0;
     std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
@@ -71,40 +156,114 @@ void SparseMatrix::printStoredValues() {
 
 int SparseMatrix::density() {
     auto t0 = std::chrono::high_resolution_clock::now();
-    int count = 0, Xtotal = 0, Ytotal = 0;
-    Nodo* cursor = start;
-    while (cursor) {
-        count++;
-        if (cursor->x > Xtotal) Xtotal = cursor->x;
-        if (cursor->y > Ytotal) Ytotal = cursor->y;
-        cursor = cursor->right;
+    int count = 0;
+    int maxX = 0, maxY = 0;
+    for (const auto& p : filaHeads) {
+        Nodo* cursor = p.second;
+        while (cursor) {
+            if (cursor->valor != 0) {
+                ++count;
+                if (cursor->x > maxX) maxX = cursor->x;
+                if (cursor->y > maxY) maxY = cursor->y;
+            }
+            cursor = cursor->right;
+        }
     }
-    if (Xtotal == 0 || Ytotal == 0) return 0;
+    if (maxX == 0 || maxY == 0) return 0;
     auto t1 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = t1 - t0;
     std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
-    return (count * 100) / (Xtotal * Ytotal);
+    return (count*100) / (maxX * maxY);
 }
 
 SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
     auto t0 = std::chrono::high_resolution_clock::now();
-    //codigo aca
+
+    std::unordered_map<int, std::vector<std::pair<int, int>>> filasA;
+    std::unordered_map<int, std::vector<std::pair<int, int>>> filasB;
+
+    for (const auto& p : filaHeads) {
+        int i = p.first;
+        Nodo* cursor = p.second;
+        while (cursor) {
+            if (cursor->valor != 0) filasA[i].push_back({ cursor->y, cursor->valor }); // (k, aval)
+            cursor = cursor->right;
+        }
+    }
+
+    for (const auto& p : second->filaHeads) {
+        int i = p.first;
+        Nodo* cursor = p.second;
+        while (cursor) {
+            if (cursor->valor != 0) filasB[i].push_back({ cursor->y, cursor->valor }); // (j, bval) stored under Fila k
+            cursor = cursor->right;
+        }
+    }
+
+    std::unordered_map<int, std::unordered_map<int, long long>> result;
+
+    for (const auto& filaA : filasA) {
+        int i = filaA.first;
+        for (const auto& ak : filaA.second) {
+            int k = ak.first;
+            int valorA = ak.second;
+            auto iterarB = filasB.find(k);
+            if (iterarB == filasB.end()) continue;
+            for (const auto& bj : iterarB->second) {
+                int j = bj.first;
+                int valorB = bj.second;
+                result[i][j] += static_cast<long long>(valorA) * static_cast<long long>(valorB);
+            }
+        }
+    }
+
+    SparseMatrix* res = new SparseMatrix();
+    for (const auto& FilaPair : result) {
+        int i = FilaPair.first;
+        for (const auto& colPair : FilaPair.second) {
+            int j = colPair.first;
+            long long val = colPair.second;
+            if (val != 0) res->add(i, j, static_cast<int>(val));
+        }
+    }
 
     auto t1 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = t1 - t0;
     std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
-    return nullptr;
+    return res;
+}
+std::pair<int, int> SparseMatrix::getDimensions() const {
+    int maxX = 0, maxY = 0;
+    for (const auto& p : filaHeads) {
+        Nodo* cursor = p.second;
+        while (cursor) {
+            if (cursor->x > maxX) maxX = cursor->x;
+            if (cursor->y > maxY) maxY = cursor->y;
+            cursor = cursor->right;
+        }
+    }
+    return { maxX, maxY };
+}
+
+Nodo* SparseMatrix::getStart() const {
+    if (filaHeads.empty()) return nullptr;
+    int minFila = INT_MAX;
+    for (const auto& p : filaHeads) if (p.first < minFila) minFila = p.first;
+    auto it = filaHeads.find(minFila);
+    if (it == filaHeads.end()) return nullptr;
+    return it->second;
 }
 
 SparseMatrix::~SparseMatrix() {
-    auto t0 = std::chrono::high_resolution_clock::now();
-    Nodo* cursor = start;
-    while (cursor) {
-        Nodo* next = cursor->right;
-        delete cursor;
-        cursor = next;
+    for (auto& p : filaHeads) {
+        Nodo* cursor = p.second;
+        while (cursor) {
+            Nodo* next = cursor->right;
+            delete cursor;
+            cursor = next;
+        }
+        p.second = nullptr;
     }
-    auto t1 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> elapsed = t1 - t0;
-    std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
+    filaHeads.clear();
+    colHeads.clear();
 }
