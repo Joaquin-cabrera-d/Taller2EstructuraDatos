@@ -7,6 +7,39 @@
 #include <cmath>
 
 SparseMatrix::SparseMatrix() : filaHeads(), colHeads() {}
+SparseMatrix::SparseMatrix(const SparseMatrix& other) : SparseMatrix() {
+    for (const auto& p : other.filaHeads) {
+        Nodo* cursor = p.second;
+        while (cursor) {
+            add(cursor->x, cursor->y, cursor->valor);
+            cursor = cursor->right;
+        }
+    }
+}
+
+SparseMatrix& SparseMatrix::operator=(const SparseMatrix& other) {
+    if (this == &other) {
+        return *this;
+    }
+    for (auto& p : filaHeads) {
+        Nodo* cursor = p.second;
+        while (cursor) {
+            Nodo* next = cursor->right;
+            delete cursor;
+            cursor = next;
+        }
+    }
+    filaHeads.clear();
+    colHeads.clear();
+    for (const auto& p : other.filaHeads) {
+        Nodo* cursor = p.second;
+        while (cursor) {
+            add(cursor->x, cursor->y, cursor->valor);
+            cursor = cursor->right;
+        }
+    }
+    return *this;
+}
 
 void SparseMatrix::add(int X, int Y, int valor) {
     if (valor == 0) return;
