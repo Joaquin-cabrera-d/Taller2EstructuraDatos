@@ -12,6 +12,7 @@ void obtenerDato();
 void removerDato();
 void mostrarDatos();
 void calcularDensidad();
+void generarAleatoria();
 void multiplicarMatriz();
 
 int main() {
@@ -26,7 +27,8 @@ int main() {
         cout << "4. Mostrar los datos tabularmente" << endl;
         cout << "5. Calcular la densidad de la matriz" << endl;
         cout << "6. Multiplicar matriz" << endl;
-        cout << "7. Salir" << endl;
+        cout << "7. Generar Matriz con valores aleatorios" << endl;
+        cout << "8. Salir" << endl;
         cout << "Ingrese una opcion: ";
         getline(cin, input);
         try {
@@ -53,13 +55,16 @@ int main() {
             case 6 :
                 multiplicarMatriz();
                 break;
-            case 7 :
+			case 7:
+                generarAleatoria();
+				break;
+            case 8 :
                 cout<<"Saliendo del programa"<<endl;
                 break;
             default:
                 cout << "Opcion no valida, intente de nuevo"<< endl;
         }
-    } while(opcion !=7);
+    } while(opcion !=8);
     return 0;
 }
 void agregarDato(){
@@ -179,6 +184,67 @@ void calcularDensidad(){
     if(Matriz.density() == 0){
         cout << "(La matriz tiene 0 elementos o es un porcentaje menor a 1)";
     }
+}
+void generarAleatoria(){
+    int X;
+    int Y;
+    string input;
+    cout << "                      " << endl;
+    cout << "Ingrese Coordenada en X: " << endl;
+    getline(cin, input);
+    try {
+        X = stoi(input);
+    }
+    catch (...) {
+        X = 0;
+    }
+    if (X <= 0) {
+        cout << "Opcion no valida" << endl;
+        return;
+    }
+    cout << "Ingrese Coordenada en Y: " << endl;
+    getline(cin, input);
+    try {
+        Y = stoi(input);
+    }
+    catch (...) {
+        Y = 0;
+    }
+    if (Y <= 0) {
+        cout << "Opcion no valida" << endl;
+        return;
+    }
+	int cantValores = 0;
+    cout << "Ingrese numero de elementos no nulos deseados (max " << (long long)X * Y << "): ";
+    getline(cin, input);
+    try { cantValores = stoi(input); }
+    catch (...) { cantValores = 0; }
+    if (cantValores <= 0) {
+        cout << "Numero de no nulos invalido." << endl;
+        return;
+    }
+    long long maxPossible = (long long)X * Y;
+    if (cantValores > maxPossible) cantValores = static_cast<int>(maxPossible);
+    cout << "                      " << endl;
+    SparseMatrix NuevaMatriz;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distRow(1, X);
+    std::uniform_int_distribution<> distCol(1, Y);
+    std::uniform_int_distribution<> distVal(1, 9);
+    std::set<std::pair<int, int>> used_coords;
+    for (int i = 0; i < cantValores;) {
+        int r = distRow(gen);
+        int c = distCol(gen);
+        std::pair<int, int> coord = { r, c };
+        if (used_coords.insert(coord).second) {
+            int v = distVal(gen);
+            NuevaMatriz.add(r, c, v);
+            i++;
+        }
+    }
+    Matriz = NuevaMatriz;
+	cout << "Matriz generada aleatoriamente con " << cantValores << " valores (rango de valores entre 1 a 9)." << endl;
 }
 void multiplicarMatriz() {
     auto dimensA = Matriz.getDimensions();
