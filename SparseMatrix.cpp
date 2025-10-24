@@ -11,38 +11,12 @@ SparseMatrix::SparseMatrix(const SparseMatrix& other) : SparseMatrix() {
     for (const auto& p : other.filaHeads) {
         Nodo* cursor = p.second;
         while (cursor) {
-            add(cursor->x, cursor->y, cursor->valor);
+            addInternal(cursor->x, cursor->y, cursor->valor);
             cursor = cursor->right;
         }
     }
 }
-
-SparseMatrix& SparseMatrix::operator=(const SparseMatrix& other) {
-    if (this == &other) {
-        return *this;
-    }
-    for (auto& p : filaHeads) {
-        Nodo* cursor = p.second;
-        while (cursor) {
-            Nodo* next = cursor->right;
-            delete cursor;
-            cursor = next;
-        }
-    }
-    filaHeads.clear();
-    colHeads.clear();
-    for (const auto& p : other.filaHeads) {
-        Nodo* cursor = p.second;
-        while (cursor) {
-            add(cursor->x, cursor->y, cursor->valor);
-            cursor = cursor->right;
-        }
-    }
-    return *this;
-}
-
-void SparseMatrix::add(int X, int Y, int valor) {
-    auto t0 = std::chrono::high_resolution_clock::now();
+void SparseMatrix::addInternal(int X, int Y, int valor) {
     if (valor == 0) return;
     auto iterarFila = filaHeads.find(X);
     if (iterarFila != filaHeads.end() && iterarFila->second != nullptr) {
@@ -101,9 +75,43 @@ void SparseMatrix::add(int X, int Y, int valor) {
             nodo->down = cursor;
         }
     }
+}
+
+SparseMatrix& SparseMatrix::operator=(const SparseMatrix& other) {
+    if (this == &other) {
+        return *this;
+    }
+    for (auto& p : filaHeads) {
+        Nodo* cursor = p.second;
+        while (cursor) {
+            Nodo* next = cursor->right;
+            delete cursor;
+            cursor = next;
+        }
+    }
+    filaHeads.clear();
+    colHeads.clear();
+    for (const auto& p : other.filaHeads) {
+        Nodo* cursor = p.second;
+        while (cursor) {
+            addInternal(cursor->x, cursor->y, cursor->valor);
+            cursor = cursor->right;
+        }
+    }
+    return *this;
+}
+
+void SparseMatrix::add(int X, int Y, int valor) {
+    auto t0 = std::chrono::high_resolution_clock::now();
+    if (valor == 0) return;
+    addInternal(X, Y, valor);
     auto t1 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = t1 - t0;
     std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
+}
+void SparseMatrix::addRandom(int X, int Y, int valor) {
+    if (valor == 0) return;
+	addInternal(X, Y, valor);
 }
 
 int SparseMatrix::get(int X, int Y) {
