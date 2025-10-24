@@ -269,7 +269,7 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
         for (const auto& colPair : FilaPair.second) {
             int j = colPair.first;
             long long val = colPair.second;
-            if (val != 0) res->add(i, j, static_cast<int>(val));
+            if (val != 0) res->addInternal(i, j, static_cast<int>(val));
         }
     }
 
