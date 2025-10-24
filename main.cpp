@@ -306,7 +306,7 @@ void multiplicarMatriz() {
         std::pair<int, int> coord = { r, c };
         if (used_coords.insert(coord).second) {
             int v = distVal(gen);
-            B.add(r, c, v);
+            B.addRandom(r, c, v);
             i++;
         }
     }
