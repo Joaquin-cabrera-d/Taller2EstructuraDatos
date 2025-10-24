@@ -42,6 +42,7 @@ SparseMatrix& SparseMatrix::operator=(const SparseMatrix& other) {
 }
 
 void SparseMatrix::add(int X, int Y, int valor) {
+    auto t0 = std::chrono::high_resolution_clock::now();
     if (valor == 0) return;
     auto iterarFila = filaHeads.find(X);
     if (iterarFila != filaHeads.end() && iterarFila->second != nullptr) {
@@ -100,6 +101,9 @@ void SparseMatrix::add(int X, int Y, int valor) {
             nodo->down = cursor;
         }
     }
+    auto t1 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = t1 - t0;
+    std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
 }
 
 int SparseMatrix::get(int X, int Y) {
